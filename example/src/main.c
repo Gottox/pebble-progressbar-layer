@@ -26,7 +26,7 @@ static void timer_callback(void *context)
 static void window_load(Window *window)
 {
   //Add a new ProgressBarLayer
-  pb_layer = progressbar_layer_create(GRect(5, 5, 139, 15));
+  pb_layer = progressbar_layer_create(GRect(5, 5, 134, 15));
   layer_add_child(window_get_root_layer(window), progressbar_layer_get_layer(pb_layer));
 
   //Register progression

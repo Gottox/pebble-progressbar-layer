@@ -2,8 +2,8 @@
 
 static void update_proc(Layer *layer, GContext *ctx)
 {
-	//Draw border
-	GRect outer = layer_get_bounds(layer);
+  //Draw border
+  GRect outer = layer_get_bounds(layer);
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, outer, 0, GCornerNone);
 
@@ -51,7 +51,17 @@ void progressbar_layer_destroy(ProgressBarLayer *this)
 
 void progressbar_layer_set_progress(ProgressBarLayer *this, int new_progress)
 {
-	//Store value
+  //Limit value to possible range
+  if(new_progress < 0)
+  {
+    new_progress = 0;
+  }
+  else if(new_progress > 100)
+  {
+    new_progress = 100;
+  }
+
+  //Store value
   void *progress = layer_get_data(this->layer);
   *((int*)progress) = new_progress;
 

@@ -4,8 +4,8 @@
 #define CL_PROGRESSBAR_H
 
 typedef struct {
-	Layer *layer;
-	//Progress value is embedded in Layer
+  Layer *layer;
+  //Progress value is embedded in Layer
 } ProgressBarLayer;
 
 ProgressBarLayer* progressbar_layer_create(GRect bounds);
