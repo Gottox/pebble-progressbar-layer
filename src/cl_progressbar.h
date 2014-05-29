@@ -1,3 +1,8 @@
+/*
+ * ProgressBarLayer code
+ * src: https://github.com/C-D-Lewis/pebble-progressbar-layer
+ */
+
 #include <pebble.h>
 
 #ifndef CL_PROGRESSBAR_H
