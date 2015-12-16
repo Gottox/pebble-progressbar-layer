@@ -1,10 +1,25 @@
 #include "cl_progressbar.h"
+#define SGETTER(t, p) \
+	t progressbar_layer_get_ ## p(ProgressBarLayer *layer) { \
+		return layer-> p; \
+	} \
+	void progressbar_layer_set_ ## p(ProgressBarLayer *layer, t value) { \
+		layer-> p = value; \
+		layer_mark_dirty(layer->layer); \
+	}
+
+SGETTER(int, progress);
+SGETTER(int, max);
+SGETTER(GColor, foreground);
+SGETTER(GColor, background);
 
 static void update_proc(Layer *layer, GContext *ctx)
 {
+	ProgressBarLayer *prop = layer_get_data(layer);
+
   //Draw border
   GRect outer = layer_get_bounds(layer);
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, prop->foreground);
   graphics_fill_rect(ctx, outer, 0, GCornerNone);
 
   //Fill background of bar
@@ -14,69 +29,44 @@ static void update_proc(Layer *layer, GContext *ctx)
     outer.size.w - 2,
     outer.size.h - 2
   );
-  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, prop->background);
   graphics_fill_rect(ctx, inner, 0, GCornerNone);
 
   //Draw progress as bar
-  void *ptr = layer_get_data(layer);
-  int progress = *((int*)ptr);
-  int width = (int)(((float)progress / 100.0F) * (float)inner.size.w);
+	int max = prop->max > 0 ? prop->max : 1;
+	int progress = prop->progress < prop->max ? prop->progress : prop->max;
   GRect bar = GRect(
     outer.origin.x + 1,
     outer.origin.y + 1,
-    width,
+    (progress * inner.size.w) / max,
     outer.size.h - 2
   );
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, prop->foreground);
   graphics_fill_rect(ctx, bar, 0, GCornerNone);
 }
 
 ProgressBarLayer* progressbar_layer_create(GRect bounds)
 {
-  ProgressBarLayer *this = malloc(sizeof(ProgressBarLayer));
-  this->layer = layer_create_with_data(bounds, sizeof(int));
-  layer_set_update_proc(this->layer, (LayerUpdateProc)update_proc);
-  
-  void *progress = layer_get_data(this->layer);
-  *((int*)progress) = 0;
+  Layer *layer = layer_create_with_data(bounds, sizeof(ProgressBarLayer));
+  layer_set_update_proc((Layer *)layer, update_proc);
 
-  return this;
+	ProgressBarLayer *progressbar_layer = (ProgressBarLayer *)layer_get_data(layer);
+
+	progressbar_layer->progress = 0;
+	progressbar_layer->max = 100;
+	progressbar_layer->foreground = GColorBlack;
+	progressbar_layer->background = GColorWhite;
+	progressbar_layer->layer = layer;
+
+  return progressbar_layer;
 }
 
-void progressbar_layer_destroy(ProgressBarLayer *this)
+Layer* progressbar_layer_get_layer(ProgressBarLayer *layer)
 {
-  layer_destroy(this->layer);
-  free(this);
+	return layer->layer;
 }
 
-void progressbar_layer_set_progress(ProgressBarLayer *this, int new_progress)
+void progressbar_layer_destroy(ProgressBarLayer *layer)
 {
-  //Limit value to possible range
-  if(new_progress < 0)
-  {
-    new_progress = 0;
-  }
-  else if(new_progress > 100)
-  {
-    new_progress = 100;
-  }
-
-  //Store value
-  void *progress = layer_get_data(this->layer);
-  *((int*)progress) = new_progress;
-
-  //Re-draw
-  layer_mark_dirty(this->layer);
-}
-
-int progressbar_layer_get_progress(ProgressBarLayer *this)
-{
-  void *progress = layer_get_data(this->layer);
-  
-  return *((int*)progress);
-}
-
-Layer* progressbar_layer_get_layer(ProgressBarLayer *this)
-{
-  return this->layer;
+  layer_destroy(layer->layer);
 }

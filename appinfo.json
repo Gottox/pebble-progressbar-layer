@@ -1,0 +1,17 @@
+{
+  "uuid": "a383a301-ce15-4d5c-a7c5-af90a15f1d8e",
+  "shortName": "progressbar-example",
+  "longName": "progressbar-example",
+  "companyName": "Gottox",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": [ "aplite", "basalt", "chalk" ],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+  },
+  "resources": {
+    "media": [ ]
+  }
+}
